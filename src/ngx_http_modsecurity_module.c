@@ -504,6 +504,7 @@ ngx_http_modsecurity_init(ngx_conf_t *cf)
 {
     ngx_http_handler_pt *h_rewrite;
     ngx_http_handler_pt *h_preaccess;
+    ngx_http_handler_pt *h_log0;
     ngx_http_handler_pt *h_log;
     ngx_http_core_main_conf_t *cmcf;
     int rc = 0;
@@ -545,6 +546,14 @@ ngx_http_modsecurity_init(ngx_conf_t *cf)
         return NGX_ERROR;
     }
     *h_preaccess = ngx_http_modsecurity_pre_access_handler;
+
+    h_log0 = ngx_array_push(&cmcf->phases[NGX_HTTP_PREACCESS_PHASE].handlers);
+    if (h_log0 == NULL)
+    {
+        dd("Not able to create a new NGX_HTTP_PREACCESS_PHASE handle");
+        return NGX_ERROR;
+    }
+    *h_log0 = ngx_http_modsecurity_log_handler;
 
     /**
      * Process the log phase.
